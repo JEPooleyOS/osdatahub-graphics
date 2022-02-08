@@ -52,8 +52,7 @@ for building in local_buildings_gdf.itertuples():
         x_shift, y_range = 0, 0
 
 # Create GeoSeries
-gs = gpd.GeoDataFrame({"geometry": polygons,
-                       "SHAPE_Area": local_buildings_gdf.SHAPE_Area})
+gs = gpd.GeoSeries(polygons)
 
 # Plot
 edgecolor = "#FFFFFF00"
