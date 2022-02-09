@@ -12,7 +12,7 @@ key = environ.get("OS_API_KEY")
 extent = Extent.from_ons_code("E09000001")
 
 # Define product
-product = "zoomstack_roads_local"
+product = "zoomstack_local_buildings"
 
 # Query Features API
 features_api = FeaturesAPI(key, product, extent)
@@ -24,11 +24,11 @@ local_buildings_gdf = gpd.GeoDataFrame.from_features(
 local_buildings_gdf.to_crs("EPSG:27700", inplace=True)
 
 # Sort buildings by their footprint area
-local_buildings_gdf.sort_values("SHAPE_Length", inplace=True)
+local_buildings_gdf.sort_values("SHAPE_Area", inplace=True)
 
 # Move buildings according to their area
 x_shift, y_shift, y_range = 0, 0, 0
-width = 1000
+width = 2300
 polygons = []
 for building in local_buildings_gdf.itertuples():
     
@@ -60,6 +60,6 @@ facecolor = "#FFFFFF"
 background = "#222222"
 
 fig, ax = plt.subplots(facecolor=background)
-gs.plot(edgecolor="#FFFFFF", ax=ax)
+gs.plot(facecolor=facecolor, edgecolor=edgecolor, ax=ax)
 plt.axis('off')
 plt.show()
