@@ -69,3 +69,8 @@ fig, ax = plt.subplots(facecolor=BACKGROUND)
 gs.plot(facecolor=FACECOLOR, edgecolor=EDGECOLOR, ax=ax)
 plt.axis('off')
 plt.show()
+
+fig, ax = plt.subplots(facecolor=BACKGROUND)
+local_buildings_gdf.plot(facecolor=FACECOLOR, edgecolor=EDGECOLOR, ax=ax)
+plt.axis('off')
+plt.show()
