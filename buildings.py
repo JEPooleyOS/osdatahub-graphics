@@ -9,7 +9,7 @@ from shapely.affinity import translate
 key = environ.get("OS_API_KEY")
 
 # Define extent
-extent = Extent.from_ons_code("E09000001")
+extent = Extent.from_ons_code("E09000033")
 
 # Define product
 product = "zoomstack_local_buildings"
@@ -28,7 +28,7 @@ local_buildings_gdf.sort_values("SHAPE_Area", inplace=True)
 
 # Move buildings according to their area
 x_shift, y_shift, y_range = 0, 0, 0
-width = 2300
+width = 6000
 polygons = []
 for building in local_buildings_gdf.itertuples():
     

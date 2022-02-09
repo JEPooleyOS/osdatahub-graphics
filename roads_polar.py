@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from osdatahub import FeaturesAPI, Extent
 from os import environ
 from shapely.affinity import translate
+from shapely.geometry import LineString
 
 
 # Get OS Data Hub API key
@@ -23,28 +24,49 @@ local_roads_gdf = gpd.GeoDataFrame.from_features(
     local_roads['features'], crs=extent.crs)
 local_roads_gdf.to_crs("EPSG:27700", inplace=True)
 
-# Move buildings according to their area
-x_shift, y_shift, y_range = 0, 0, 0
-width = 2300
-lines = []
-end_x, end_y = 0, 0
-for road in local_roads_gdf.itertuples():
+# "Polarise" the road network
+def break_line(line: LineString) -> list:
+    """
+    Break LineString into its straight line segments
+    """
+    segment_coords = zip(line.coords[:-1], line.coords[1:])
+    return list(map(LineString, segment_coords))
 
-    geometry = road.geometry
-    start_x, start_y = geometry.coords[-1]
-    shifted_geometry = translate(geometry,
-                                 xoff=-start_x + end_x,
-                                 yoff=-start_y + end_y)
-    end_x, end_y = shifted_geometry.coords[-1]
-    lines.append(shifted_geometry)
 
-gs = gpd.GeoSeries(lines)
+def polarise_lines(lines: gpd.GeoDataFrame) -> gpd.GeoSeries:
+    """
+    Extract all straight line segments and transform them so that they emerge
+    from a shared coordinate
+    """
+    segments = []
+    for line in lines.itertuples():
+        
+        # Extract geometry
+        geometry = line.geometry
+
+        # Iterate through straight line segments
+        for segment in break_line(geometry):
+            
+            # Transform lines to shared coordinate
+            start_x, start_y = segment.coords[-1]
+            shifted_segment = translate(segment,
+                                        xoff=-start_x,
+                                        yoff=-start_y)
+            
+            # Update segments list
+            segments.append(shifted_segment)
+
+    return gpd.GeoSeries(segments)
+
+# Create polarised lines GeoSeries
+polarised_roads = polarise_lines(local_roads_gdf)
 
 # Plot
-edgecolor = "#FFFFFF20"
+edgecolor = "#FFFFFF30"
 background = "#222222"
+linewidth = 2
 
 fig, ax = plt.subplots(facecolor=background)
-gs.plot(edgecolor=edgecolor, ax=ax)
+polarised_roads.plot(edgecolor=edgecolor, ax=ax, linewidth=linewidth)
 plt.axis('off')
 plt.show()
