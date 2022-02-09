@@ -1,9 +1,9 @@
+from os import environ
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
-from osdatahub import FeaturesAPI, Extent
-from os import environ
+from osdatahub import Extent, FeaturesAPI
 from shapely.affinity import translate
-
 
 # Get OS Data Hub API key
 key = environ.get("OS_API_KEY")
@@ -27,29 +27,33 @@ local_buildings_gdf.to_crs("EPSG:27700", inplace=True)
 local_buildings_gdf.sort_values("SHAPE_Area", inplace=True)
 
 # Move buildings according to their area
-x_shift, y_shift, y_range = 0, 0, 0
-width = 2300
+shift_x, shift_y, range_y = 0, 0, 0
+width = 2405
+space = 5
 polygons = []
 for building in local_buildings_gdf.itertuples():
-    
+
     # Extract geometry and bounding box
     geometry = building.geometry
     min_x, min_y, max_x, max_y = geometry.bounds
+    range_x = max_x - min_x
+
+    # Check whether to wrap to next line
+    if shift_x + range_x > width:
+        shift_y += range_y + space
+        shift_x, range_y = 0, 0
 
     # Translate geometry
     shifted_geometry = translate(geometry,
-                                 xoff=-min_x + x_shift,
-                                 yoff=-min_y + y_shift)
+                                 xoff=shift_x - min_x,
+                                 yoff=shift_y - min_y)
 
     # Update polygons list
     polygons.append(shifted_geometry)
-    
+
     # Update shift parameters
-    y_range = max(max_y - min_y, y_range)
-    x_shift += max_x - min_x + 5
-    if x_shift > width:
-        y_shift += y_range + 5
-        x_shift, y_range = 0, 0
+    range_y = max(max_y - min_y, range_y)
+    shift_x += max_x - min_x + space
 
 # Create GeoSeries
 gs = gpd.GeoSeries(polygons)
