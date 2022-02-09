@@ -4,7 +4,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 from osdatahub import Extent, FeaturesAPI
 from shapely.affinity import translate
-from shapely.geometry import MultiLineString, LineString
+from shapely.geometry import LineString, MultiLineString
 from shapely.ops import linemerge
 
 # Get OS Data Hub API key
