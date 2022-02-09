@@ -1,1 +1,0 @@
-# osdatahub-tutorial
