@@ -32,7 +32,7 @@ SPACE = 5
 
 polygons = []
 shift_x, shift_y = 0, 0
-range_y, range_x = 0, 0
+range_x, range_y = 0, 0
 for building in local_buildings_gdf.itertuples():
 
     # Extract geometry and bounding box
