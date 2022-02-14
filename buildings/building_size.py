@@ -55,7 +55,7 @@ for building in local_buildings_gdf.itertuples():
 
     # Update shift parameters
     width_y = max(max_y - min_y, width_y)
-    offset_x += max_x - min_x + LINE_SPACE
+    offset_x += width_x + LINE_SPACE
 
 # Create GeoSeries
 gs = gpd.GeoSeries(polygons)
