@@ -27,35 +27,35 @@ local_buildings_gdf.to_crs("EPSG:27700", inplace=True)
 local_buildings_gdf.sort_values("SHAPE_Area", inplace=True)
 
 # Move buildings according to their area
-WIDTH = 2405
-SPACE = 5
+LINE_WIDTH = 2405
+LINE_SPACE = 5
 
 polygons = []
-shift_x, shift_y = 0, 0
-range_x, range_y = 0, 0
+offset_x, offset_y = 0, 0
+width_y = 0
 for building in local_buildings_gdf.itertuples():
 
     # Extract geometry and bounding box
     geometry = building.geometry
     min_x, min_y, max_x, max_y = geometry.bounds
-    range_x = max_x - min_x
+    width_x = max_x - min_x
 
     # Check whether to wrap to next line
-    if shift_x + range_x > WIDTH:
-        shift_y += range_y + SPACE
-        shift_x, range_y = 0, 0
+    if offset_x + width_x > LINE_WIDTH:
+        offset_y += width_y + LINE_SPACE
+        offset_x, width_y = 0, 0
 
     # Translate geometry
     shifted_geometry = translate(geometry,
-                                 xoff=shift_x - min_x,
-                                 yoff=shift_y - min_y)
+                                 xoff=offset_x - min_x,
+                                 yoff=offset_y - min_y)
 
     # Update polygons list
     polygons.append(shifted_geometry)
 
     # Update shift parameters
-    range_y = max(max_y - min_y, range_y)
-    shift_x += max_x - min_x + SPACE
+    width_y = max(max_y - min_y, width_y)
+    offset_x += max_x - min_x + LINE_SPACE
 
 # Create GeoSeries
 gs = gpd.GeoSeries(polygons)
